@@ -103,3 +103,29 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .gradient-login {
+    background: linear-gradient(135deg, hsl(222.2 47.4% 11.2%) 0%, hsl(210 40% 30%) 50%, hsl(222.2 47.4% 11.2%) 100%);
+  }
+
+  .shadow-card {
+    box-shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.06), 0 1px 2px -1px hsl(0 0% 0% / 0.06);
+  }
+
+  .shadow-elevated {
+    box-shadow: 0 10px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.08);
+  }
+
+  .text-success {
+    color: hsl(142 71% 45%);
+  }
+
+  .bg-success {
+    background-color: hsl(142 71% 45%);
+  }
+
+  .bg-success\/90 {
+    background-color: hsl(142 71% 45% / 0.9);
+  }
+}
