@@ -20,6 +20,7 @@ export default function Auth() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [branch, setBranch] = useState("");
+  const [username, setUsername] = useState("");
   const [teacherId, setTeacherId] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -41,7 +42,7 @@ export default function Auth() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword || !branch || !teacherId) {
+    if (!email || !password || !confirmPassword || !branch || !teacherId || !username) {
       toast({ title: "Please fill all fields", variant: "destructive" });
       return;
     }
@@ -59,7 +60,7 @@ export default function Auth() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { branch, teacher_id: teacherId },
+        data: { branch, teacher_id: teacherId, username },
       },
     });
     setLoading(false);
@@ -115,6 +116,7 @@ export default function Auth() {
 
           {mode === "signup" && (
             <form onSubmit={handleSignup} className="space-y-4">
+              <Input placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
               <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
               <Input placeholder="Teacher ID" value={teacherId} onChange={(e) => setTeacherId(e.target.value)} />
               <Select value={branch} onValueChange={setBranch}>
