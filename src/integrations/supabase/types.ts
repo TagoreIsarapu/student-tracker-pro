@@ -21,6 +21,7 @@ export type Database = {
           id: string
           teacher_id: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
           branch?: string | null
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           teacher_id?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
           branch?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           id?: string
           teacher_id?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
