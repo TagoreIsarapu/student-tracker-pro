@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GraduationCap } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +19,8 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [branch, setBranch] = useState("");
+  const [teacherId, setTeacherId] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -36,7 +41,7 @@ export default function Auth() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password || !confirmPassword || !branch || !teacherId) {
       toast({ title: "Please fill all fields", variant: "destructive" });
       return;
     }
@@ -52,7 +57,10 @@ export default function Auth() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { emailRedirectTo: window.location.origin },
+      options: {
+        emailRedirectTo: window.location.origin,
+        data: { branch, teacher_id: teacherId },
+      },
     });
     setLoading(false);
     if (error) {
@@ -108,6 +116,17 @@ export default function Auth() {
           {mode === "signup" && (
             <form onSubmit={handleSignup} className="space-y-4">
               <Input placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input placeholder="Teacher ID" value={teacherId} onChange={(e) => setTeacherId(e.target.value)} />
+              <Select value={branch} onValueChange={setBranch}>
+                <SelectTrigger><SelectValue placeholder="Select Branch" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BCA">BCA</SelectItem>
+                  <SelectItem value="BTech">BTech</SelectItem>
+                  <SelectItem value="MCA">MCA</SelectItem>
+                  <SelectItem value="BBA">BBA</SelectItem>
+                  <SelectItem value="MBA">MBA</SelectItem>
+                </SelectContent>
+              </Select>
               <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
               <Input placeholder="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
               <Button type="submit" className="w-full" disabled={loading}>
