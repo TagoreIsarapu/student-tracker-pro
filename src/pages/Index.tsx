@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import { Plus, LogOut, GraduationCap, Users, BookOpen, LayoutGrid, Settings, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import type { User } from "@supabase/supabase-js";
 
 interface AttendanceRecord {
   id: string;
@@ -37,7 +40,10 @@ const navItems: { key: Page; label: string; icon: React.ReactNode }[] = [
 export default function Index() {
   const { toast } = useToast();
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState<Page>("home");
 
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
@@ -53,6 +59,18 @@ export default function Index() {
 
   const [selectedSection, setSelectedSection] = useState("A");
   const [selectedClass, setSelectedClass] = useState("BCA");
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -99,27 +117,17 @@ export default function Index() {
   const totalPresent = records.filter((r) => r.status === "Present").length;
   const totalAbsent = records.filter((r) => r.status === "Absent").length;
 
-  if (!isLoggedIn) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center gradient-login p-4">
-        <Card className="w-full max-w-sm shadow-elevated border-0">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-xl bg-primary/10">
-              <GraduationCap className="h-7 w-7 text-primary" />
-            </div>
-            <CardTitle className="text-xl">Admin Login</CardTitle>
-            <p className="text-sm text-muted-foreground">University Attendance System</p>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-2">
-            <Input placeholder="Username" />
-            <Input type="password" placeholder="Password" />
-            <Button onClick={() => setIsLoggedIn(true)} className="w-full">
-              Sign In
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
       </div>
     );
+  }
+
+  if (!user) {
+    navigate("/auth");
+    return null;
   }
 
   return (
@@ -129,7 +137,7 @@ export default function Index() {
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-14">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="font-semibold text-foreground">UniAttend</span>
+            <span className="font-semibold text-foreground">College Attendance</span>
           </div>
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => (
@@ -145,7 +153,7 @@ export default function Index() {
               </Button>
             ))}
           </nav>
-          <Button variant="ghost" size="sm" onClick={() => setIsLoggedIn(false)} className="text-destructive hover:text-destructive">
+          <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }} className="text-destructive hover:text-destructive">
             <LogOut className="h-4 w-4 mr-1" /> Logout
           </Button>
         </div>
@@ -173,7 +181,7 @@ export default function Index() {
           <div className="space-y-5">
             <div>
               <h2 className="text-2xl font-bold text-foreground">Dashboard</h2>
-              <p className="text-muted-foreground text-sm">Welcome to University Attendance Portal 🎓</p>
+              <p className="text-muted-foreground text-sm">Welcome to College Attendance Management 🎓</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-3">
               <Card className="shadow-card">
